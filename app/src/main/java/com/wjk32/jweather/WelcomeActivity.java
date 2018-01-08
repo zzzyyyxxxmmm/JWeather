@@ -32,12 +32,6 @@ public class WelcomeActivity extends Activity{
         finish();
     }
     public String initialdata(){
-        try{
-
-            Thread.sleep(3000);
-        }catch (Exception e){
-            System.out.println(e);
-        }
         return "";
     }
 }

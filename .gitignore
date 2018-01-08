@@ -7,4 +7,4 @@
 /build
 /captures
 .externalNativeBuild
-secret.txt
+*.txt

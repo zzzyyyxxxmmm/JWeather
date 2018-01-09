@@ -22,4 +22,5 @@ use RxJava+Retrofit to load info from weatherAPI
 
 2018-1-8 20:54:56
 implement mvp architechture
-<img src="https://github.com/zzzyyyxxxmmm/JWeather/blob/master/photo/uml01.png" width="50%" height="50%">
+
+<img src="https://github.com/zzzyyyxxxmmm/JWeather/blob/master/photo/uml01.png" width="60%" height="60%">

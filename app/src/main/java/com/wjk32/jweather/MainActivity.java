@@ -1,5 +1,6 @@
 package com.wjk32.jweather;
 
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,37 +16,76 @@ import android.widget.Toast;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.wjk32.jweather.base.BaseActivity;
 import com.wjk32.jweather.entities.Weather;
 import com.wjk32.jweather.http.WeatherRequest;
+import com.wjk32.jweather.presenter.HomePageContract;
+import com.wjk32.jweather.presenter.HomePagePresenter;
+import com.wjk32.jweather.presenter.MainPresenter;
+import com.wjk32.jweather.presenter.MainView;
+import com.wjk32.jweather.view.HomePageFragment;
 
 import org.w3c.dom.Text;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-
-    @BindView(R.id.tview)
-    TextView textView;
-
-    private Weather weather=null;
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener
+,HomePageFragment.OnFragmentInteractionListener,MainView{
+    @Inject
+    public HomePagePresenter homePagePresenter;
 
     @BindView(R.id.refreshLayout)
     RefreshLayout refreshLayout;
     private WeatherRequest weatherRequest;
+
+    private String currentCityName="Bethlehem,us";
+    @BindView(R.id.textview_main)
+    TextView textView;
+
+
+    MainPresenter presenter;
+
+    @Override
+    public void onShowString(Weather weather) {
+        textView.setText(weather.toString());
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //load fragment
+//        getSupportFragmentManager().beginTransaction()
+//                .add(R.id.fragment_container, HomePageFragment.newInstance(), "f1")
+//                //.addToBackStack("fname")
+//                .commit();
+
         initView();
-        weatherRequest = WeatherRequest.getInstance();
-        refreshLayout.autoRefresh();
+//        weatherRequest = WeatherRequest.getInstance();
+//        refreshLayout.autoRefresh();
 
 
         //textView.setText(weather.toString());
 
+        loadDatas();
 
 
+
+    }
+
+    private void loadDatas() {
+        presenter=new MainPresenter().addTaskListener(this);
+        presenter.getData();
+    }
+
+    @Override
+    public void updatePageTitle(Weather weather) {
 
     }
 
@@ -68,26 +108,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         //pulltorefresh
-        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
-            @Override
-            public void onRefresh(RefreshLayout refreshlayout) {
-                weatherRequest.getnews();
-                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
-                weather=weatherRequest.getWeatherlist();
-                if(weather==null){
-                    Toast.makeText(getApplicationContext(),"获取信息失败",Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    textView.setText(weather.toString());
-                }
-            }
-        });
+
+        refreshLayout.setOnRefreshListener(refreshlayout -> homePagePresenter.loadWeather(currentCityName,true));
+//        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
+//            @Override
+//            public void onRefresh(RefreshLayout refreshlayout) {
+//
+//                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
+//
+//            }
+//        });
         refreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
             @Override
             public void onLoadmore(RefreshLayout refreshlayout) {
                 refreshlayout.finishLoadmore(2000/*,false*/);//传入false表示加载失败
             }
         });
+
 
 
     }
@@ -151,6 +188,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
 }

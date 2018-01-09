@@ -19,3 +19,7 @@ Tips: You need to use style.xml to set your background, because setcontentview d
 add NavigationView
 add pulltoRefresh
 use RxJava+Retrofit to load info from weatherAPI
+
+2018-1-8 20:54:56
+implement mvp architechture
+<img src="https://github.com/zzzyyyxxxmmm/JWeather/blob/master/photo/uml01.png" width="50%" height="50%">

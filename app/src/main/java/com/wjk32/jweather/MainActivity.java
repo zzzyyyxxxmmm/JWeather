@@ -1,7 +1,10 @@
 package com.wjk32.jweather;
 
+import android.Manifest;
+import android.location.Location;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
@@ -41,13 +43,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     RefreshLayout refreshLayout;
     private WeatherRequest weatherRequest;
 
-    private String currentCityName="Bethlehem,us";
+    public String currentCityName="Bethlehem,us";
     @BindView(R.id.textview_main)
     TextView textView;
 
 
     MainPresenter presenter;
-
     @Override
     public void onShowString(Weather weather) {
         textView.setText(weather.toString());
@@ -59,25 +60,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //load fragment
-//        getSupportFragmentManager().beginTransaction()
-//                .add(R.id.fragment_container, HomePageFragment.newInstance(), "f1")
-//                //.addToBackStack("fname")
-//                .commit();
-
         initView();
-//        weatherRequest = WeatherRequest.getInstance();
-//        refreshLayout.autoRefresh();
-
-
-        //textView.setText(weather.toString());
 
         loadDatas();
 
 
 
     }
+
 
     private void loadDatas() {
         presenter=new MainPresenter().addTaskListener(this);
@@ -109,15 +99,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //pulltorefresh
 
-        refreshLayout.setOnRefreshListener(refreshlayout -> homePagePresenter.loadWeather(currentCityName,true));
-//        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
-//            @Override
-//            public void onRefresh(RefreshLayout refreshlayout) {
-//
-//                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
-//
-//            }
-//        });
+        refreshLayout.setOnRefreshListener(refreshlayout -> presenter.getData());
+        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+
+                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
+
+            }
+        });
         refreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
             @Override
             public void onLoadmore(RefreshLayout refreshlayout) {

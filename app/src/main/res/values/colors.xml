@@ -6,4 +6,5 @@
     <color name="danthemeColor">#87CEFF</color>
     <color name="themeColor">#6495ED</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>

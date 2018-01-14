@@ -21,7 +21,9 @@ import com.wjk32.jweather.di.components.DaggerWeatherComponent;
 import com.wjk32.jweather.di.module.WeatherModule;
 import com.wjk32.jweather.entities.Weather;
 import com.wjk32.jweather.mvp.presenter.WeatherPresenter;
+import com.wjk32.jweather.mvp.view.HomePageFragment;
 import com.wjk32.jweather.mvp.view.MainView;
+import com.wjk32.jweather.util.ActivityUtils;
 
 import javax.inject.Inject;
 
@@ -33,17 +35,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
 
-    @Inject protected WeatherPresenter weatherPresenter;
+
 
     @BindView(R.id.refreshLayout)   RefreshLayout refreshLayout;
 
     public String currentCityName="Bethlehem,us";
-    @BindView(R.id.textview_main)   TextView textView;
 
 
     @Override
     public void onShowString(Weather weather) {
-        textView.setText(weather.toString());
+
     }
 
     @Override
@@ -55,7 +56,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onViewReady(Bundle savedInstanceState, Intent intent) {
         super.onViewReady(savedInstanceState, intent);
         initView();
-        weatherPresenter.getWeather();
     }
 
     @Override
@@ -68,6 +68,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private void initView() {
         ButterKnife.bind(this);
+
+
+        HomePageFragment homePageFragment = (HomePageFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (homePageFragment == null) {
+
+            homePageFragment = HomePageFragment.newInstance();
+            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), homePageFragment, R.id.fragment_container);
+        }
+
+
+
 
         //navigationView
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -86,7 +97,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //pulltorefresh
 
-        refreshLayout.setOnRefreshListener(refreshlayout -> weatherPresenter.getWeather());
+        //refreshLayout.setOnRefreshListener(refreshlayout -> weatherPresenter.getWeather());
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -95,12 +106,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             }
         });
+        /*
         refreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
             @Override
             public void onLoadmore(RefreshLayout refreshlayout) {
-                refreshlayout.finishLoadmore(2000/*,false*/);//传入false表示加载失败
+                refreshlayout.finishLoadmore(2000);//传入false表示加载失败
             }
         });
+        */
+
 
 
 

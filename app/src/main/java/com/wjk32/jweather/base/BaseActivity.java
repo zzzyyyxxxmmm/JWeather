@@ -18,6 +18,8 @@ import butterknife.Unbinder;
  */
 
 public abstract class BaseActivity extends AppCompatActivity{
+
+
     Unbinder unbinder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

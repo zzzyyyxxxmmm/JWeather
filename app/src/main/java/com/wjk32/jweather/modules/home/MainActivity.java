@@ -1,33 +1,27 @@
-package com.wjk32.jweather;
+package com.wjk32.jweather.modules.home;
 
-import android.Manifest;
-import android.location.Location;
-import android.os.Handler;
+
+import android.content.Intent;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.wjk32.jweather.R;
 import com.wjk32.jweather.base.BaseActivity;
+import com.wjk32.jweather.di.components.DaggerWeatherComponent;
+import com.wjk32.jweather.di.module.WeatherModule;
 import com.wjk32.jweather.entities.Weather;
-import com.wjk32.jweather.http.WeatherRequest;
-import com.wjk32.jweather.presenter.HomePageContract;
-import com.wjk32.jweather.presenter.HomePagePresenter;
-import com.wjk32.jweather.presenter.MainPresenter;
-import com.wjk32.jweather.presenter.MainView;
-import com.wjk32.jweather.view.HomePageFragment;
-
-import org.w3c.dom.Text;
+import com.wjk32.jweather.mvp.presenter.WeatherPresenter;
+import com.wjk32.jweather.mvp.view.MainView;
 
 import javax.inject.Inject;
 
@@ -35,48 +29,41 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener
-,HomePageFragment.OnFragmentInteractionListener,MainView{
-    @Inject
-    public HomePagePresenter homePagePresenter;
+,MainView{
 
-    @BindView(R.id.refreshLayout)
-    RefreshLayout refreshLayout;
-    private WeatherRequest weatherRequest;
+
+
+    @Inject protected WeatherPresenter weatherPresenter;
+
+    @BindView(R.id.refreshLayout)   RefreshLayout refreshLayout;
 
     public String currentCityName="Bethlehem,us";
-    @BindView(R.id.textview_main)
-    TextView textView;
+    @BindView(R.id.textview_main)   TextView textView;
 
 
-    MainPresenter presenter;
     @Override
     public void onShowString(Weather weather) {
         textView.setText(weather.toString());
     }
 
-
+    @Override
+    protected int getContentView() {
+        return R.layout.activity_main;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onViewReady(Bundle savedInstanceState, Intent intent) {
+        super.onViewReady(savedInstanceState, intent);
         initView();
-
-        loadDatas();
-
-
-
-    }
-
-
-    private void loadDatas() {
-        presenter=new MainPresenter().addTaskListener(this);
-        presenter.getData();
+        weatherPresenter.getWeather();
     }
 
     @Override
-    public void updatePageTitle(Weather weather) {
-
+    protected void resolveDaggerDependency() {
+        DaggerWeatherComponent.builder()
+                .applicationComponent(getApplicationComponent())
+                .weatherModule(new WeatherModule(this))
+                .build().inject(this);
     }
 
     private void initView() {
@@ -99,7 +86,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //pulltorefresh
 
-        refreshLayout.setOnRefreshListener(refreshlayout -> presenter.getData());
+        refreshLayout.setOnRefreshListener(refreshlayout -> weatherPresenter.getWeather());
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {

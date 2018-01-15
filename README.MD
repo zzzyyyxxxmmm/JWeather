@@ -22,6 +22,12 @@ add pulltoRefresh
 use RxJava+Retrofit to load info from weatherAPI
 
 **2018-1-8 20:54:56**
-implement mvp architechture
+implement simple mvp architechture
 
 <img src="https://github.com/zzzyyyxxxmmm/JWeather/blob/master/photo/uml01.png" width="60%" height="60%">
+
+**2018-1-15 17:01:30**
+After learning Dagger2+[android-architecture by google](https://github.com/googlesamples/android-architecture) and solving numbers of bugs from Dagger2,
+I use Retrofit2+RxJava2+Dagger2+MVP to display weather into fragment
+
+<img src="https://github.com/zzzyyyxxxmmm/JWeather/blob/master/photo/02.png">

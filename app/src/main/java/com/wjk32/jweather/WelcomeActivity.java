@@ -20,7 +20,7 @@ import static java.lang.Thread.sleep;
 public class WelcomeActivity extends Activity{
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Observable.just(initialdata())
                 .subscribeOn(Schedulers.io())

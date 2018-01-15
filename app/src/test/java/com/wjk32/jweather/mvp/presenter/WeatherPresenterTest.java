@@ -17,10 +17,8 @@ public class WeatherPresenterTest {
 
     @Test
     public void getWeather() throws Exception {
-        weatherPresenter.getWeather();
     }
 
-    @Test
     public void onNext() throws Exception {
 
     }

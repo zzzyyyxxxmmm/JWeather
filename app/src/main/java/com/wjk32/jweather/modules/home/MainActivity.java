@@ -10,19 +10,16 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.wjk32.jweather.R;
+import com.wjk32.jweather.application.WeatherApplication;
 import com.wjk32.jweather.base.BaseActivity;
 import com.wjk32.jweather.di.components.DaggerWeatherComponent;
 import com.wjk32.jweather.di.module.WeatherModule;
-import com.wjk32.jweather.entities.Weather;
 import com.wjk32.jweather.mvp.presenter.WeatherPresenter;
-import com.wjk32.jweather.mvp.view.HomePageFragment;
-import com.wjk32.jweather.mvp.view.MainView;
+import com.wjk32.jweather.mvp.view.WeatherFragment;
 import com.wjk32.jweather.util.ActivityUtils;
 
 import javax.inject.Inject;
@@ -31,7 +28,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener
-,MainView{
+{
 
 
 
@@ -39,13 +36,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @BindView(R.id.refreshLayout)   RefreshLayout refreshLayout;
 
-    public String currentCityName="Bethlehem,us";
+    @Inject
+    WeatherPresenter weatherPresenter;
 
-
-    @Override
-    public void onShowString(Weather weather) {
-
-    }
 
     @Override
     protected int getContentView() {
@@ -60,24 +53,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     protected void resolveDaggerDependency() {
-        DaggerWeatherComponent.builder()
-                .applicationComponent(getApplicationComponent())
-                .weatherModule(new WeatherModule(this))
-                .build().inject(this);
+
     }
 
     private void initView() {
         ButterKnife.bind(this);
 
 
-        HomePageFragment homePageFragment = (HomePageFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (homePageFragment == null) {
+        WeatherFragment weatherFragment = (WeatherFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (weatherFragment == null) {
 
-            homePageFragment = HomePageFragment.newInstance();
-            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), homePageFragment, R.id.fragment_container);
+            weatherFragment = WeatherFragment.newInstance();
+            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), weatherFragment, R.id.fragment_container);
         }
 
 
+        DaggerWeatherComponent.builder()
+                .applicationComponent(WeatherApplication.getInstance().getApplicationComponent())
+                .weatherModule(new WeatherModule(weatherFragment))
+                .build().inject(this);
 
 
         //navigationView
@@ -97,7 +91,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //pulltorefresh
 
-        //refreshLayout.setOnRefreshListener(refreshlayout -> weatherPresenter.getWeather());
+        refreshLayout.setOnRefreshListener(refreshlayout -> weatherPresenter.loadWeather("Bethlehem,us"));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {

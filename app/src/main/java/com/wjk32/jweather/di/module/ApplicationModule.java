@@ -3,6 +3,9 @@ package com.wjk32.jweather.di.module;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.wjk32.jweather.api.WeatherApiService;
+import com.wjk32.jweather.application.WeatherApplication;
+import com.wjk32.jweather.di.scope.PerActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,44 +25,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class ApplicationModule {
 
-    private String BASE_URL="http://api.openweathermap.org/data/2.5/";
     private Context mContext;
-    public ApplicationModule(Context context,String baseUrl){
+    public ApplicationModule(Context context){
         this.mContext=context;
-        this.BASE_URL=baseUrl;
     }
 
 
-    @Singleton
     @Provides
-    GsonConverterFactory provideGsonConverterFactory(){
-        return GsonConverterFactory.create();
+    @Singleton
+    WeatherApplication provideApplication() {
+
+        return (WeatherApplication) mContext.getApplicationContext();
     }
 
-    @Singleton
-    @Provides
-    OkHttpClient provideOkHttpClient(){
-        return new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .build();
-    }
 
-    @Singleton
-    @Provides
-    RxJava2CallAdapterFactory provideRxJava2CallAdapterFactory(){
-        return RxJava2CallAdapterFactory.create();
-    }
 
-    @Singleton
-    @Provides
-    Retrofit provideRetrofit(OkHttpClient client, GsonConverterFactory converterFactory,RxJava2CallAdapterFactory adapterFactory){
-        return new Retrofit.Builder()
-                .client(client)
-                .addConverterFactory(converterFactory)
-                .baseUrl(BASE_URL)
-                .addCallAdapterFactory(adapterFactory)
-                .build();
-    }
+
 
     @Singleton
     @Provides

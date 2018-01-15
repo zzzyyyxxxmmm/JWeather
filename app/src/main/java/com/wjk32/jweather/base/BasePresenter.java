@@ -11,18 +11,10 @@ import io.reactivex.schedulers.Schedulers;
  * Created by wjk32 on 1/8/2018.
  */
 
-public class BasePresenter<V extends BaseView> {
+public interface BasePresenter {
 
 
-    @Inject protected V mView;
+    void subscribe();
 
-    protected V getView() {
-        return mView;
-    }
-
-    protected <T> void subscribe(Observable<T> observable, Observer<T> observer){
-        observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
-    }
+    void unsubscribe();
 }

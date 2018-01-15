@@ -1,133 +1,127 @@
 package com.wjk32.jweather.mvp.presenter;
 
-import com.wjk32.jweather.api.WeatherApiService;
-import com.wjk32.jweather.base.BasePresenter;
-import com.wjk32.jweather.entities.Weather;
-import com.wjk32.jweather.mvp.view.MainView;
-
-import org.reactivestreams.Subscriber;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Inject;
+import android.content.Context;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
+import io.reactivex.observers.DisposableObserver;
+import retrofit2.Call;
+import android.widget.Toast;
+
+import com.wjk32.jweather.api.WeatherApiService;
+import com.wjk32.jweather.application.WeatherApplication;
+import com.wjk32.jweather.di.components.DaggerPresenterComponent;
+import com.wjk32.jweather.di.module.ApplicationModule;
+import com.wjk32.jweather.di.module.WeatherModule;
+import com.wjk32.jweather.di.scope.PerActivity;
+import com.wjk32.jweather.entities.Weather;
+import com.wjk32.jweather.mvp.model.WeatherContract;
+import com.wjk32.jweather.util.schedulers.BaseSchedulerProvider;
+
+import javax.inject.Inject;
+import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.internal.disposables.DisposableHelper;
-import io.reactivex.internal.util.EndConsumerHelper;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 
 
 /**
  * Created by wjk32 on 1/8/2018.
  */
 
-public class WeatherPresenter extends BasePresenter<MainView> implements Observer<Weather>{
+public class WeatherPresenter implements WeatherContract.Presenter{
 
-    private static final String CITY="Bethlehem,us";
     private static final String APIKEY="e638571500c460474a51e37671b49718";
     private static final String MODE="json";
 
+    private  Context context;
 
-    @Inject protected WeatherApiService mApiService;
+
+    private CompositeDisposable mCompositeDisposable;
+
+    private  WeatherContract.View mWeatherView;
+
+    private  BaseSchedulerProvider mSchedulerProvider;
+
+    @Inject WeatherApiService mApiService;
+
+
 
     @Inject
-    public WeatherPresenter(){
+    WeatherPresenter(Context context,WeatherContract.View weatherView){
+        this.context=context;
+        mWeatherView=weatherView;
+
+        mCompositeDisposable=new CompositeDisposable();
+        mWeatherView.setPresenter(this);
+
+
+        DaggerPresenterComponent.builder()
+                .weatherModule(new WeatherModule(mWeatherView))
+                .applicationComponent(WeatherApplication.getInstance().getApplicationComponent())
+                .build().inject(this);
 
     }
 
 
 
-    public void getWeather() {
-        Observable<Weather> weatherResponseObservable = mApiService.getWeather(CITY,MODE,APIKEY);
-        subscribe(weatherResponseObservable, this);
+    @Override
+    public void subscribe() {
+        String cityName="Bethlehem,us";
+        loadWeather(cityName);
     }
 
     @Override
-    public void onSubscribe(Disposable d) {
-
+    public void unsubscribe() {
+        mCompositeDisposable.clear();
     }
 
-    @Override
-    public void onNext(Weather weather) {
-        getView().onShowString(weather);
-    }
+    public void loadWeather(String cityName) {
+//
+//        Observable<Weather> observable = mApiService.getObWeather(cityName,MODE,APIKEY);
+//        observable.subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new DisposableObserver<Weather>() {
+//
+//                    @Override
+//                    public void onNext(Weather weather) {
+//                        System.out.println(weather.toString());
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                    }
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//                });
+        Flowable<Weather> weatherFlowable = mApiService.getWeather(cityName,MODE,APIKEY);
 
-    @Override
-    public void onError(Throwable e) {
-    }
+        Call<Weather> weatherCall=mApiService.getCallWeather(cityName,MODE,APIKEY);
+        System.out.println(weatherCall.request().url().toString());
 
-    @Override
-    public void onComplete() {
-    }
-
-
-/*
-    MainView mainView;
-    DataSource dataSource;
-
-    private static final String CITY="Bethlehem,us";
-    private static final String APIKEY="e638571500c460474a51e37671b49718";
-    private static final String BASE_URL="http://api.openweathermap.org/data/2.5/";
-    private static final String MODE="json";
-
-    public WeatherPresenter() {
-        this.dataSource = new DataSourceImpl();
-    }
-
-    public WeatherPresenter addTaskListener(MainView viewListener){
-        this.mainView=viewListener;
-        return this;
-    }
-
-    public void getData(){
-
-        okhttp3.OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(5, TimeUnit.SECONDS);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(builder.build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(BASE_URL)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-
-        WeatherInterface apiService = retrofit.create(WeatherInterface.class);
-        Observable<Weather> observable = apiService.getWeather(CITY,MODE,APIKEY);
-
-
-        observable.subscribeOn(Schedulers.io())
+        Disposable disposable=weatherFlowable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DisposableObserver<Weather>() {
-                    @Override
-                    public void onComplete() {
-                        //System.out.println(weatherlist.toString());
-                    }
-                    @Override
-                    public void onError(Throwable e) {
-                    }
+                .subscribe(
+                        //on Next
+                        stats ->{
+                            System.out.println(stats.toString());
+                            mWeatherView.showWeather(stats);
+                        },
 
-                    @Override
-                    public void onNext(Weather weatherElist) {
-                        mainView.onShowString(weatherElist);
+                        //onError
 
-                    }
-                });
-//        Weather weather=dataSource.getWeather();
-//        mainView.onShowString(weather);
+                        throwable ->{
+                            System.out.println(throwable.getMessage());
+                        }
+                        //onCompleted
+
+                );
+
+        mCompositeDisposable.add(disposable);
     }
-
-    */
 }

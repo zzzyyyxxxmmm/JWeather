@@ -23,7 +23,7 @@ public class WeatherHelper {
         details.add(new WeatherDetail(R.drawable.ic_index_sunscreen, "Sea Level", String.valueOf(weather.getList().get(0).getMain().getPressure())+ "hPa"));
         details.add(new WeatherDetail(R.drawable.ic_index_sunscreen, "Grnd Level", String.valueOf(weather.getList().get(0).getMain().getGrnd_level())+ "hPa"));
         details.add(new WeatherDetail(R.drawable.ic_index_sunscreen, "Cloud", String.valueOf(weather.getList().get(0).getClouds().getAll()) + "%"));
-        details.add(new WeatherDetail(R.drawable.ic_index_sunscreen, "Wind Speed", String.valueOf(weather.getList().get(0).getWind().getSpeed()) + "m"));
+        //details.add(new WeatherDetail(R.drawable.ic_index_sunscreen, "Wind Speed", String.valueOf(weather.getList().get(0).getWind().getSpeed()) + "m"));
         return details;
     }
 }

@@ -1,6 +1,8 @@
 package com.wjk32.jweather.mvp.view;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -22,6 +24,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+
+import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by wjk32 on 1/14/2018.
  */
@@ -45,8 +49,9 @@ public class WeatherFragment extends BaseFragment implements WeatherContract.Vie
     }
 
     @Override
-    public void setPresenter(WeatherContract.Presenter presenter) {
-        mPresenter=presenter;
+    public void setPresenter(@NonNull WeatherContract.Presenter presenter) {
+
+        mPresenter=checkNotNull(presenter);
     }
 
     @Override

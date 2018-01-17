@@ -18,6 +18,7 @@ import com.wjk32.jweather.application.WeatherApplication;
 import com.wjk32.jweather.base.BaseActivity;
 import com.wjk32.jweather.di.components.DaggerWeatherComponent;
 import com.wjk32.jweather.di.module.WeatherModule;
+import com.wjk32.jweather.entities.WeatherFilterType;
 import com.wjk32.jweather.mvp.presenter.WeatherPresenter;
 import com.wjk32.jweather.mvp.view.WeatherFragment;
 import com.wjk32.jweather.util.ActivityUtils;
@@ -31,7 +32,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 {
 
 
-
+    private static final String CURRENT_FILTERING_KEY = "CURRENT_FILTERING_KEY";
 
 
     @BindView(R.id.refreshLayout)   RefreshLayout refreshLayout;
@@ -49,7 +50,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onViewReady(Bundle savedInstanceState, Intent intent) {
         super.onViewReady(savedInstanceState, intent);
         initView();
+
+        // Load previously saved state, if available.
+        if (savedInstanceState != null) {
+            WeatherFilterType currentFiltering =
+                    (WeatherFilterType) savedInstanceState.getSerializable(CURRENT_FILTERING_KEY);
+            weatherPresenter.setFiltering(currentFiltering);
+        }
+
+
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(CURRENT_FILTERING_KEY, weatherPresenter.getFiltering());
+
+        super.onSaveInstanceState(outState);
+    }
+
 
     @Override
     protected void resolveDaggerDependency() {
@@ -90,7 +108,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
         //pulltorefresh
-
         refreshLayout.setOnRefreshListener(refreshlayout -> weatherPresenter.loadWeather("Bethlehem,us"));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
@@ -100,14 +117,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             }
         });
-        /*
-        refreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
-            @Override
-            public void onLoadmore(RefreshLayout refreshlayout) {
-                refreshlayout.finishLoadmore(2000);//传入false表示加载失败
-            }
-        });
-        */
+
 
 
 

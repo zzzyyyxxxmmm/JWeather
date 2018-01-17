@@ -14,6 +14,7 @@ import com.wjk32.jweather.di.module.ApplicationModule;
 import com.wjk32.jweather.di.module.WeatherModule;
 import com.wjk32.jweather.di.scope.PerActivity;
 import com.wjk32.jweather.entities.Weather;
+import com.wjk32.jweather.entities.WeatherFilterType;
 import com.wjk32.jweather.mvp.model.WeatherContract;
 import com.wjk32.jweather.util.schedulers.BaseSchedulerProvider;
 
@@ -39,6 +40,7 @@ public class WeatherPresenter implements WeatherContract.Presenter{
 
     private  Context context;
 
+    private WeatherFilterType mCurrentFiltering = WeatherFilterType.ALL_WEATHER;
 
     private CompositeDisposable mCompositeDisposable;
 
@@ -80,25 +82,6 @@ public class WeatherPresenter implements WeatherContract.Presenter{
     }
 
     public void loadWeather(String cityName) {
-//
-//        Observable<Weather> observable = mApiService.getObWeather(cityName,MODE,APIKEY);
-//        observable.subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new DisposableObserver<Weather>() {
-//
-//                    @Override
-//                    public void onNext(Weather weather) {
-//                        System.out.println(weather.toString());
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                    }
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                    }
-//                });
         Flowable<Weather> weatherFlowable = mApiService.getWeather(cityName,MODE,APIKEY);
 
         Call<Weather> weatherCall=mApiService.getCallWeather(cityName,MODE,APIKEY);
@@ -124,4 +107,15 @@ public class WeatherPresenter implements WeatherContract.Presenter{
 
         mCompositeDisposable.add(disposable);
     }
+
+    @Override
+    public void setFiltering(WeatherFilterType requestType) {
+        mCurrentFiltering = requestType;
+    }
+
+    @Override
+    public WeatherFilterType getFiltering() {
+        return mCurrentFiltering;
+    }
+
 }
